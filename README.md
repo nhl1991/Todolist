@@ -41,6 +41,34 @@
 ```bash
 git clone https://github.com/nhl1991/Todolist.git
 ```
+### 2. Install
+
+```bash
+$ npm install
+```
+
+### 3. Compile and run the project
+#### - Next.js
+```bash
+cd client
+```
+```bash
+npm run dev
+```
+#### - Nest.js
+```bash
+cd server
+```
+```bash
+# development
+$ npm run start
+
+# watch mode
+$ npm run start:dev
+
+# production mode
+$ npm run start:prod
+```
 ---
 
 ## CHANGE LOG
