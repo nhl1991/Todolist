@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #171717;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.inputField {
+  @apply border-b-2 border-slate-300 transition-colors duration-500 p-2;
+}
+
+.inputField:focus {
+  @apply outline-none border-sky-400;
+}
+
+.username-display {
+  @apply font-bold text-base px-3 py-1.5 cursor-pointer rounded-xl;
+}
+textarea#content {
+  @apply border-2 border-slate-300 transition-colors duration-500 rounded-xl p-2;
+}
+textarea#content:focus {
+  @apply border-2 border-sky-400 outline-none transition-colors duration-500;
+}
+
+.gradient {
+  @apply bg-[radial-gradient(circle_at_center,#00f5ff,#6a00ff)];
+}
+
+.btn-hover {
+  @apply bg-sky-400 dark:bg-slate-800 font-bold flex items-center justify-center text-white px-3 py-1.5 cursor-pointer rounded-xl;
+}
+@media (hover: hover) {
+  .btn-hover:hover {
+    @apply bg-sky-600;
+  }
+}
+
+.btn-hover:active {
+  @apply bg-sky-600;
+}
+
+.box-shadow {
+  @apply shadow-lg dark:shadow-black;
+}
