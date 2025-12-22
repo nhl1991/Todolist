@@ -39,7 +39,7 @@
 
 ### 1. Clone repository
 ```bash
-git clone https://github.com/nhl1991/-NextJS-Todo-Client.git
+git clone https://github.com/nhl1991/Todolist.git
 ```
 ---
 
