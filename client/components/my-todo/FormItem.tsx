@@ -1,10 +1,14 @@
-"use client"
+"use client";
 import { useFormStatus } from "react-dom";
 import LoadingSpinner from "../common/ui/loadingSpinner";
 import CheckBox from "../common/components/checkBox";
+import { ChangeEvent, useState } from "react";
+import LengthCounter from "./LengthCounter";
 
 export default function FormItem({ userId }: { userId: string }) {
   const status = useFormStatus();
+  const [title, setTitle] = useState<string>("");
+  const [content, setContent] = useState<string>("");
 
   return (
     <>
@@ -25,7 +29,11 @@ export default function FormItem({ userId }: { userId: string }) {
               name="title"
               className="inputField"
               placeholder="Title Input"
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setTitle(e.currentTarget.value)
+              }
             />
+          <LengthCounter text={title.length} max={20} />
           </div>
           <div className="flex flex-col gap-1">
             <label htmlFor="content" className="font-bold">
@@ -37,7 +45,11 @@ export default function FormItem({ userId }: { userId: string }) {
               id="content"
               name="content"
               className="resize-none"
+              onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
+                setContent(e.currentTarget.value)
+              }
             />
+          <LengthCounter text={content.length} max={250} />
           </div>
           <div className="w-full flex justify-between p-2">
             <CheckBox label="公開" />
