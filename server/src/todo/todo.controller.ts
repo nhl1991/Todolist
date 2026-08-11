@@ -10,12 +10,14 @@ import {
   Req,
   Res,
   Query,
+  ForbiddenException,
+  NotFoundException,
 } from '@nestjs/common';
 import { TodoService } from './todo.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { Request } from 'express';
+import { OptionalJwtAuthGuard } from 'src/auth/optional-jwt-auth.guard';
 
 @Controller('todo')
 export class TodoController {
@@ -24,11 +26,11 @@ export class TodoController {
   // 게시글 생성
   @UseGuards(JwtAuthGuard)
   @Post('/create')
-  async create(@Body() createTodoDto: CreateTodoDto, @Req() req: Request) {
-    const { userId, ...data } = createTodoDto;
+  async create(@Body() createTodoDto: CreateTodoDto, @Req() req) {
+    const { userId } = req.user;
 
     return await this.todoService.create({
-      ...data,
+      ...createTodoDto,
       User: {
         connect: { id: userId },
       },
@@ -42,15 +44,25 @@ export class TodoController {
     return await this.todoService.findAll(cursor);
   }
 
-  // 게시글 검색
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.todoService.findOne(+id);
+  @UseGuards(JwtAuthGuard)
+  @Get('my-todo/:id')
+  getUserTodos(@Param('id') id: string, @Req() req) {
+    const { userId } = req.user;
+    if (+id !== +userId) throw new ForbiddenException();
+
+    return this.todoService.getUserTodos(+id);
   }
 
-  @Get('my-todo/:id')
-  getUserTodos(@Param('id') id: string) {
-    return this.todoService.getUserTodos(+id);
+  // 게시글 검색
+  @UseGuards(OptionalJwtAuthGuard)
+  @Get(':id')
+  async findOne(@Param('id') id: string, @Req() req) {
+    const todo = await this.todoService.findOne(+id);
+    if (!todo) throw new NotFoundException();
+    if (!todo.public && todo.authorId !== req.user?.userId) {
+      throw new NotFoundException();
+    }
+    return todo;
   }
 
   // 게시글 수정

@@ -12,11 +12,13 @@ import {
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { Request, Response } from 'express';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @UseGuards(ThrottlerGuard)
   @HttpCode(HttpStatus.OK)
   @Post('login')
   async signIn(
@@ -28,8 +30,8 @@ export class AuthController {
       await this.authService.signIn(signInDto.email, signInDto.password);
 
     res.cookie('access_token', access_token, {
-      httpOnly: true,
-      sameSite: 'none',
+      httpOnly: false,
+      sameSite: 'lax',
       secure: true, // https 환경이면 true
       path: '/',
       maxAge: 1000 * 60 * 30, // 일단 30분.
@@ -53,11 +55,5 @@ export class AuthController {
   @Get('me')
   getMe(@Req() req: Request) {
     return req.user;
-  }
-
-  @Get('cookie-test')
-  getCookieTest(@Req() req: Request) {
-
-    return req.cookies;
   }
 }
