@@ -24,9 +24,9 @@ export class AuthService {
     userId: number;
   }> {
     const user = await this.userService.getUser(email);
-
+    
     if (user && bcrypt.compareSync(pass, user.password)) {
-      const payload = { sub: user, email: user.email };
+      const payload = { sub: user.id, email: user.email, username: user.username };
       const access_token = await this.jwtService.signAsync(payload);
       console.log('로그인 성공..')
       return {
@@ -35,28 +35,26 @@ export class AuthService {
         username: user.username,
         userId: user.id,
       };
-    } else if(!user){
-      throw new UnauthorizedException('Not registered.');
-    }else throw new UnauthorizedException('Invalid credentials');
+    } else {
+      throw new UnauthorizedException('Invalid credentials');
+    }
   }
 
   async validateUser(email: string, pass: string): Promise<any> {
     const user = await this.userService.getUser(email);
-
     if (user && bcrypt.compareSync(pass, user.password)) {
       return user;
     }
-
     return null;
   }
 
-  async login(user: { username: string; email: string; password: string }) {
-    const payload = { username: user.username, sub: { ...user } };
+  // async login(user: { username: string; email: string; password: string }) {
+  //   const payload = { username: user.username, sub: { ...user } };
 
-    return {
-      username: payload.username,
-      email: payload.sub.email,
-      access_token: this.jwtService.sign(payload),
-    };
-  }
+  //   return {
+  //     username: payload.username,
+  //     email: payload.sub.email,
+  //     access_token: this.jwtService.sign(payload),
+  //   };
+  // }
 }

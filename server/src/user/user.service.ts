@@ -30,9 +30,12 @@ export class UserService {
     }
   }
 
-  async deleteUser(data: DeleteUserDto): Promise<User> {
+  async deleteUser(data: DeleteUserDto): Promise<Partial<User>> {
     try {
       return await this.prisma.user.delete({
+        omit: {
+          password: true,
+        },
         where: {
           email: data.email,
         },
