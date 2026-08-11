@@ -78,17 +78,16 @@ export class TodoService {
     try {
       const todo = await this.findOne(id);
       if (!todo) throw new NotFoundException('게시물 없음');
+      if (todo.authorId !== userId) throw new ForbiddenException();
 
-      if (todo.authorId === userId) {
-        await this.prisma.todo.update({
-          where: {
-            id: id,
-          },
-          data: {
-            ...updateTodoDto,
-          },
-        });
-      }
+      return await this.prisma.todo.update({
+        where: {
+          id: id,
+        },
+        data: {
+          ...updateTodoDto,
+        },
+      });
     } catch (err) {
       throw err;
     }

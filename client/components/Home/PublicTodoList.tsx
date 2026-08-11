@@ -39,6 +39,7 @@ export default function PublicTodoList() {
     getNextPageParam: (lastPage) => lastPage.next ?? null,
   });
   if (status === "pending") return <InitialLoadingComponent />
+  if (error) return <p>エラーが発生しまいました。</p>
   if (status === "success")
     return (
       <>
