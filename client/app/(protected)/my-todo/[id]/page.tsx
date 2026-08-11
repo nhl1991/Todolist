@@ -7,6 +7,7 @@ import MyTodoList from "@/components/my-todo/myTodoList";
 import { createMyTodo } from "@/app/actions/createMyTodo";
 import { updateMyTodo } from "@/app/actions/updateMyTodo";
 import { deleteMyTodo } from "@/app/actions/deleteMyTodo";
+import { cookies } from "next/headers";
 
 export default async function Page({
   params,
@@ -14,9 +15,13 @@ export default async function Page({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get("access_token")?.value;
   const response = await fetch(`${SERVER_URL}/todo/my-todo/${id}`, {
       method: "GET",
-      credentials: "include",
+      headers: {
+        Cookie: `access_token=${accessToken}`,
+      },
       next: {
         tags: [`todo/${id}`],
       },
