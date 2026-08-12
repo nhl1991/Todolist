@@ -12,6 +12,8 @@ export async function deleteMyTodo(formData: FormData): Promise<TodoActionRespon
   const cookie = await cookies();
   const accessToken = cookie.get("access_token")?.value;
 
+  if (!accessToken) return { success: false };
+
   const response = await fetch(`${SERVER_URL}/todo/${id}`, {
     method: "DELETE",
     credentials: "include",

@@ -17,7 +17,6 @@ export async function createMyTodo(formData: FormData): Promise<TodoActionRespon
   const content = formData.get("content") as string;
   const isPublic = formData.get("public") === "on";
   const body = {
-    userId: Number(userId),
     title: title,
     content: content,
     published: true,
