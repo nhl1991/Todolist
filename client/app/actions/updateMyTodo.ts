@@ -9,6 +9,9 @@ import { redirect } from "next/navigation";
 export async function updateMyTodo(formData: FormData): Promise<TodoActionResponse> {
   const cookie = await cookies();
   const accessToken = cookie.get("access_token")?.value;
+
+  if (!accessToken) return { success: false };
+
   const id = formData.get("id") as string;
   const userId = formData.get("userId") as string;
   const title = formData.get("title") as string;
