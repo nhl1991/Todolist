@@ -33,9 +33,6 @@ export async function createMyTodo(formData: FormData) {
   });
   if (!response.ok) {
     if (response.status === 401) {
-      alert(
-        "ログイン有効期限が切れました。お手数ですが、もう一度ログインしてください"
-      );
       redirect("/signin");
     }
   }

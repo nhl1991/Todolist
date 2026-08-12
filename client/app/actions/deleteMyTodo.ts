@@ -22,13 +22,8 @@ export async function deleteMyTodo(formData: FormData) {
 
   if (!response.ok) {
     if (response.status === 401) {
-      alert(
-        "ログイン有効期限が切れました。お手数ですが、もう一度ログインしてください"
-      );
       redirect("/signin");
     }
-    // const result = await response.json()
-    // console.log(result);
   }
   updateTag(`todo/${userId}`);
 }
