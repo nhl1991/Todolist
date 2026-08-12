@@ -1,5 +1,6 @@
 "use client";
 import { SERVER_URL } from "@/lib/serverUrl";
+import { TodoActionResponse } from "@/types/todo";
 
 import Form from "next/form";
 
@@ -12,14 +13,16 @@ export default function CompleteButton({
   id: string;
   title: string;
   userId: string;
-  action: (formData: FormData) => Promise<void>;
+  action: (formData: FormData) => Promise<TodoActionResponse>;
 }) {
 
   const handleOnAction = async (formData:FormData) => {
      const ok = confirm(`本当にこの「${title}」を削除しますか？`)
      if(!ok) return;
-     await action(formData);
-
+     const result = await action(formData);
+     if(!result.success){
+       alert("削除に失敗しました。もう一度お試しください。");
+     }
   };
   const deletePost = async () => {
     // Delete
