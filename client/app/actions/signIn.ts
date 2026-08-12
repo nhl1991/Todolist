@@ -22,14 +22,20 @@ export async function signin(formData: FormData):Promise<SignInResponse> {
     const cookieStore = await cookies();
     const setCookieHeaders = response.headers.getSetCookie();
     setCookieHeaders.forEach((cookieStr) => {
-      const [rawCookie] = cookieStr.split(";"); // "access_token=xxxx"
-      const [name, value] = rawCookie.split("=");
+      const [rawCookie, ...attrs] = cookieStr.split(";").map((part) => part.trim());
+      const eqIndex = rawCookie.indexOf("="); // "access_token=xxxx" — split on the first "=" only, the value itself may contain "="
+      const name = rawCookie.slice(0, eqIndex);
+      const value = rawCookie.slice(eqIndex + 1);
+
+      const maxAgeAttr = attrs.find((attr) => attr.toLowerCase().startsWith("max-age="));
+      const maxAge = maxAgeAttr ? Number(maxAgeAttr.split("=")[1]) : undefined;
 
       cookieStore.set(name, value, {
         httpOnly: true,
         secure: true,
         sameSite: "lax",
         path: "/",
+        ...(maxAge !== undefined && !Number.isNaN(maxAge) ? { maxAge } : {}),
       });
     });
     // return { code: response.status, message: 'Login Success', success: true}
