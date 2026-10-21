@@ -1,6 +1,7 @@
 "use client";
 import Form from "next/form";
 import { todoContentSchema, todoTitleSchema } from "@/lib/formValidators";
+import { TodoActionResponse } from "@/types/todo";
 import z, { ZodError } from "zod";
 import FormItem from "./FormItem";
 
@@ -9,7 +10,7 @@ export default function CreateTodo({
   action,
 }: {
   userId: string;
-  action: (formDate: FormData) => Promise<void>;
+  action: (formDate: FormData) => Promise<TodoActionResponse>;
 }) {
   const handleOnAction = async (formData: FormData) => {
     const title = formData.get("title");
@@ -17,7 +18,10 @@ export default function CreateTodo({
     try {
       todoTitleSchema.parse(title);
       todoContentSchema.parse(content);
-      await action(formData);
+      const result = await action(formData);
+      if (!result.success) {
+        alert("登録に失敗しました。もう一度お試しください。");
+      }
     } catch (err) {
       if (err instanceof ZodError) {
         const result = z.prettifyError(err);

@@ -1,5 +1,5 @@
 "use client";
-import { Todo } from "@/types/todo";
+import { Todo, TodoActionResponse } from "@/types/todo";
 import { useState } from "react";
 import UpdateForm from "./updateForm";
 import TodoItem from "../common/components/todoItem";
@@ -14,8 +14,8 @@ export default function MyTodoList({
 }: {
   userId: string;
   userTodo: Todo;
-  updateAction: (formData: FormData) => Promise<void>;
-  deleteAction: (formData: FormData) => Promise<void>;
+  updateAction: (formData: FormData) => Promise<TodoActionResponse>;
+  deleteAction: (formData: FormData) => Promise<TodoActionResponse>;
 }) {
   const [isEditing, setIsEditing] = useState<boolean>(false);
 

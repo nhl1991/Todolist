@@ -1,13 +1,17 @@
 "use server";
 
 import { SERVER_URL } from "@/lib/serverUrl";
+import { TodoActionResponse } from "@/types/todo";
 import { updateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-export async function updateMyTodo(formData: FormData) {
+export async function updateMyTodo(formData: FormData): Promise<TodoActionResponse> {
   const cookie = await cookies();
   const accessToken = cookie.get("access_token")?.value;
+
+  if (!accessToken) return { success: false };
+
   const id = formData.get("id") as string;
   const userId = formData.get("userId") as string;
   const title = formData.get("title") as string;
@@ -29,12 +33,12 @@ export async function updateMyTodo(formData: FormData) {
     },
     body: JSON.stringify(body),
   });
-  if (!response.ok) {
-    if (response.status === 401) {
-      redirect("/signin");
-    }
+  if (response.status === 401) {
+    redirect("/signin");
   }
 
+  if (!response.ok) return { success: false };
+
   updateTag(`todo/${userId}`);
-  // console.log(`response ok: todo/${userId}`);
+  return { success: true };
 }

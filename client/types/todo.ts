@@ -23,3 +23,7 @@ export interface SignInResponse {
   message: string;
   success: boolean;
 }
+
+export interface TodoActionResponse {
+  success: boolean;
+}

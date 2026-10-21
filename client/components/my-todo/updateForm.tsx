@@ -1,7 +1,7 @@
 "use client";
 import Form from "next/form";
 import CheckBox from "../common/components/checkBox";
-import { Todo } from "@/types/todo";
+import { Todo, TodoActionResponse } from "@/types/todo";
 import { todoContentSchema, todoTitleSchema } from "@/lib/formValidators";
 
 import z, { ZodError } from "zod";
@@ -15,7 +15,7 @@ export default function UpdateForm({
   userTodo: Todo;
   userId: string;
   onCancel: () => void;
-  action: (formData: FormData) => Promise<void>;
+  action: (formData: FormData) => Promise<TodoActionResponse>;
 }) {
   const { id, title, content } = userTodo;
   const handleAction = async (formData: FormData) => {
@@ -24,16 +24,18 @@ export default function UpdateForm({
     try{
       todoTitleSchema.parse(title);
       todoContentSchema.parse(content);
-      await action(formData);
-      onCancel();
+      const result = await action(formData);
+      if(result.success){
+        onCancel();
+      } else {
+        alert("更新に失敗しました。もう一度お試しください。");
+      }
     }catch(err){
       if(err instanceof ZodError){
         const result = z.prettifyError(err);
         alert(result);
       }
     }
-     // 서버 액션 실행 (updateMyTodo)
-     // 수정 완료 후 edit 모드 종료
   };
 
 

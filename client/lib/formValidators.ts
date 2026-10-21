@@ -10,9 +10,9 @@ export const todoContentSchema = z
   .min(1, { error: CONTENT_ERROR })
   .max(250, { error: CONTENT_ERROR });
 
-const EMAIL_ERROR = "이메일 형식이 올바르지 않습니다.";
-const PASSWORD_ERROR = "패스워드는 8~20자여야 합니다.";
-const USERNAME_ERROR = "유저명은 4~12자여야 합니다.";
+const EMAIL_ERROR = "メールアドレスの形式が正しくありません。";
+const PASSWORD_ERROR = "パスワードは8〜20文字で入力してください。";
+const USERNAME_ERROR = "ユーザー名は6〜12文字で入力してください。";
 
 export const emailSchema = z.email({ error: EMAIL_ERROR });
 export const passwordSchema = z
