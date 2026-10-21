@@ -1,0 +1,4 @@
+# Report artifacts (generated docs, not source)
+*.docx
+~$*.docx
+/.agents/
