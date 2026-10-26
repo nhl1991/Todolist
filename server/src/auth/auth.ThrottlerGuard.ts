@@ -16,6 +16,8 @@ export class BffAwareThrottlerGuard extends ThrottlerGuard {
 
     const clientIp = req.headers['x-client-ip'];
     if (fromBff && typeof clientIp === 'string' && clientIp) return clientIp;
+    console.log('[throttle]', { ip: req.ip, ips: req.ips, xff: req.headers['x-forwarded-for'] });
+
     return req.ip;
   }
 }
