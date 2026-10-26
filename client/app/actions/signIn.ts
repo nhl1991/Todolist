@@ -2,15 +2,24 @@
 
 import { SERVER_URL } from "@/lib/serverUrl";
 import { SignInResponse } from "@/types/todo";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-export async function signin(formData: FormData):Promise<SignInResponse> {
+export async function signin(formData: FormData): Promise<SignInResponse> {
   const email = formData.get("email");
   const password = formData.get("password");
+  const h =await headers();
+  
+  const clientIp =
+    h.get("x-real-ip") ?? h.get("x-forwarded-for")?.split(",")[0].trim() ?? "";
+
   const response = await fetch(`${SERVER_URL}/auth/login`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "x-client-ip": clientIp,
+      "x-bff-secret": process.env.BFF_SHARED_SECRET ?? "",
+    },
     body: JSON.stringify({
       email: email,
       password: password,
@@ -22,12 +31,16 @@ export async function signin(formData: FormData):Promise<SignInResponse> {
     const cookieStore = await cookies();
     const setCookieHeaders = response.headers.getSetCookie();
     setCookieHeaders.forEach((cookieStr) => {
-      const [rawCookie, ...attrs] = cookieStr.split(";").map((part) => part.trim());
+      const [rawCookie, ...attrs] = cookieStr
+        .split(";")
+        .map((part) => part.trim());
       const eqIndex = rawCookie.indexOf("="); // "access_token=xxxx" — split on the first "=" only, the value itself may contain "="
       const name = rawCookie.slice(0, eqIndex);
       const value = rawCookie.slice(eqIndex + 1);
 
-      const maxAgeAttr = attrs.find((attr) => attr.toLowerCase().startsWith("max-age="));
+      const maxAgeAttr = attrs.find((attr) =>
+        attr.toLowerCase().startsWith("max-age="),
+      );
       const maxAge = maxAgeAttr ? Number(maxAgeAttr.split("=")[1]) : undefined;
 
       cookieStore.set(name, value, {
@@ -40,8 +53,8 @@ export async function signin(formData: FormData):Promise<SignInResponse> {
     });
     // return { code: response.status, message: 'Login Success', success: true}
     redirect(`/my-todo/${userId}`); // redirect to user todo.
-  }else {
+  } else {
     const result = await response.json();
-    return { code: response.status, message: result, success: false}
+    return { code: response.status, message: result, success: false };
   }
 }
