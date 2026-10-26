@@ -14,8 +14,11 @@ export default function SignInForm({
   const handleOnAction = async (formData: FormData) => {
     const result = await action(formData);
     if (!result.success) {
-      setError("メールアドレスまたはパスワードが正しくありません。");
-
+      setError(
+        result.code === 429
+          ? "ログイン試行回数が上限に達しました。しばらくしてから再度お試しください。"
+          : "メールアドレスまたはパスワードが正しくありません。",
+      );
     }
 
     // when true it redirects the user to /my-todo

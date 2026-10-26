@@ -12,13 +12,13 @@ import {
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { Request, Response } from 'express';
-import { ThrottlerGuard } from '@nestjs/throttler';
+import { BffAwareThrottlerGuard } from './auth.ThrottlerGuard';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @UseGuards(ThrottlerGuard)
+  @UseGuards(BffAwareThrottlerGuard)
   @HttpCode(HttpStatus.OK)
   @Post('login')
   async signIn(
