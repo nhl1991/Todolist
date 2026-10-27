@@ -3,3 +3,6 @@
 ~$*.docx
 /.agents/
 /.vscode/
+
+# Root dev dependencies (concurrently)
+/node_modules/
