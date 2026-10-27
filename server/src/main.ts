@@ -12,7 +12,7 @@ async function bootstrap() {
   }));
   app.useGlobalFilters(new AllExceptionsFilter());
   app.use(cookieParser());
-  app.set('trust proxy', 1);
+  app.set('trust proxy', 2); // Render LB → Cloudflare, 2 steps
 
   const allowedOrigins = [
     process.env.CLIENT_URL ?? 'https://todolist-chi-red.vercel.app',
