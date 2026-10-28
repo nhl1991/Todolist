@@ -23,7 +23,6 @@ Review changed code and the relevant surrounding call chain.
 - Prevent direct exposure of internal backend endpoints or credentials.
 - Validate and sanitize external inputs.
 - Check HTTP status and error propagation.
-- Detect missing timeout handling and unsafe retries cause failure aggravation.
 - Check unauthorized response caching.
 - Identify requests that may hang indefinitely or retries that could worsen upstream failures.
 
