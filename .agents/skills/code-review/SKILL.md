@@ -13,29 +13,30 @@ Review changed code and the relevant surrounding call chain.
 - Verify authentication at every protected backend entry point.
 - Check CSRF exposure when cookie-based authentication is used.
 - Never trust client-supplied user IDs.
-- Verify Todo ownership for read, update, and delete operations.
-- Check token forwarding across Next.js and NestJS.
+- Verify Todo ownership and visibility rules across list, detail, update, and delete operations.
+- Ensure private Todos are never exposed to unauthorized users.
+- Verify trusted authentication and client identity headers cannot be forged by external callers.
+- Check that secrets and internal authentication credentials are never exposed to the browser.
 
 ## 2. BFF Architecture
 - Check server/client boundaries.
 - Prevent direct exposure of internal backend endpoints or credentials.
 - Validate and sanitize external inputs.
 - Check HTTP status and error propagation.
-- Detect missing timeout handling and unsafe retries.
 - Check unauthorized response caching.
+- Identify requests that may hang indefinitely or retries that could worsen upstream failures.
 
 ## 3. NestJS
 - Verify Guards, Pipes, DTO validation, and exception handling.
-- Check dependency injection and service boundaries.
-- Detect unsafe request handling and async failures.
 - Check that authorization cannot be bypassed.
 
 ## 4. Prisma and PostgreSQL
-- Detect incorrect query filters and missing ownership constraints.
+- Detect incorrect query filters and missing ownership constraints in read operations.
 - Check unique constraints and transaction boundaries.
-- Identify race conditions and non-atomic updates.
-- Detect significant N+1 queries and unbounded reads.
+- Report N+1 queries or unbounded reads only when they create a meaningful performance regression.
 - Check migration compatibility when schemas change.
+- Check that ownership constraints remain enforced during mutations.
+- Identify race conditions or non-atomic operations only when they can cause a concrete data integrity issue.
 
 ## 5. Next.js and React
 - Check data fetching and caching correctness.
