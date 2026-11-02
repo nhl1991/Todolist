@@ -1,30 +1,29 @@
 "use server";
 
 import { SERVER_URL } from "@/lib/serverUrl";
+import { SignUpResponse } from "@/types/todo";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 
-export async function signup(formData: FormData) {
+export async function signup(formData: FormData): Promise<SignUpResponse> {
   const email = formData.get("email");
   const password = formData.get("password");
   const username = formData.get("username");
-
-  const response = await fetch(`${SERVER_URL}/user/create`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-    body: JSON.stringify({
-      email: email,
-      password: password,
-      username: username,
-    }),
-  });
-
-  if (!response.ok) {
-    const result = await response.json();
-    console.log(result);
+  let response: Response;
+  try {
+    response = await fetch(`${SERVER_URL}/user/create`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        email: email,
+        password: password,
+        username: username,
+      }),
+    });
+  } catch {
+    return { success: false, statusCode: 503, message: "server unreachable" };
   }
 
   if (response.ok) {
@@ -35,6 +34,13 @@ export async function signup(formData: FormData) {
       maxAge: 60,
     });
 
-    redirect("/signup/success");
+    return { success: true, statusCode: 200, message: "Signup successful" };
+  } else {
+    const result = await response.json().catch(() => null);
+    return {
+      success: false,
+      statusCode: response.status,
+      message: result?.message ?? "",
+    };
   }
 }
