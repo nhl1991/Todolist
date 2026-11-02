@@ -16,7 +16,8 @@ export default function SignUpForm({
   action: (formData: FormData) => Promise<SignUpResponse>;
 }) {
   const router = useRouter();
-  const [error, setError] = useState("");
+  const [error, setError] = useState({message: "", id: 0});
+  const showError = (message: string) => setError((prev)=> ({ message, id: prev.id + 1 }));
 
   const handleSignUp = async (formData: FormData) => {
     const parsed = [
@@ -25,13 +26,13 @@ export default function SignUpForm({
       usernameSchema.safeParse(formData.get("username")),
     ].find((r) => !r.success);
     if (parsed) {
-      setError(parsed.error.issues[0].message);
+      showError(parsed.error.issues[0].message);
       return;
     }
 
     const result = await action(formData);
     if (!result.success) {
-      setError(
+      showError(
         result.statusCode === 409
           ? "メールアドレスまたはユーザー名は既に使用されています。"
           : "登録に失敗しました。",
@@ -80,7 +81,7 @@ export default function SignUpForm({
           />
         </div>{" "}
         <FormSubmitButton label="SIGN UP" />
-        {error ? <p className="text-[0.625rem] text-red-500">{error}</p> : null}
+        {error.message ? <p key={error.id} role="alert" className="text-[0.625rem] text-red-500">{error.message}</p> : null}
       </Form>
     </>
   );
