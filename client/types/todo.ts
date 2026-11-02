@@ -27,3 +27,9 @@ export interface SignInResponse {
 export interface TodoActionResponse {
   success: boolean;
 }
+
+export type SignUpResponse = {
+  success: boolean;
+  statusCode: number;
+  message: string;
+};

@@ -1,34 +1,44 @@
 "use client";
+import { useRouter } from "next/navigation";
 import {
   emailSchema,
   passwordSchema,
   usernameSchema,
 } from "@/lib/formValidators";
 import Form from "next/form";
-import z, { ZodError } from "zod";
 import FormSubmitButton from "../common/components/FormSubmitButton";
+import { useState } from "react";
+import { SignUpResponse } from "@/types/todo";
 
 export default function SignUpForm({
   action,
 }: {
-  action: (formData: FormData) => Promise<void>;
+  action: (formData: FormData) => Promise<SignUpResponse>;
 }) {
-  
+  const router = useRouter();
+  const [error, setError] = useState("");
+
   const handleSignUp = async (formData: FormData) => {
-    const email = formData.get("email");
-    const password = formData.get("password");
-    const username = formData.get("username");
-    try {
-      emailSchema.parse(email);
-      passwordSchema.parse(password);
-      usernameSchema.parse(username);
-      action(formData);
-    } catch (err) {
-      if (err instanceof ZodError) {
-        const result = z.prettifyError(err);
-        alert(result);
-      }
+    const parsed = [
+      emailSchema.safeParse(formData.get("email")),
+      passwordSchema.safeParse(formData.get("password")),
+      usernameSchema.safeParse(formData.get("username")),
+    ].find((r) => !r.success);
+    if (parsed) {
+      setError(parsed.error.issues[0].message);
+      return;
     }
+
+    const result = await action(formData);
+    if (!result.success) {
+      setError(
+        result.statusCode === 409
+          ? "メールアドレスまたはユーザー名は既に使用されています。"
+          : "登録に失敗しました。",
+      );
+      return;
+    }
+    router.push("/signup/success");
   };
   return (
     <>
@@ -58,7 +68,7 @@ export default function SignUpForm({
           />
         </div>
         <div>
-          <label htmlFor="password" className="font-bold text-xs block">
+          <label htmlFor="username" className="font-bold text-xs block">
             USERNAME
           </label>
           <input
@@ -70,6 +80,7 @@ export default function SignUpForm({
           />
         </div>{" "}
         <FormSubmitButton label="SIGN UP" />
+        {error ? <p className="text-[0.625rem] text-red-500">{error}</p> : null}
       </Form>
     </>
   );
