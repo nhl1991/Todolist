@@ -8,12 +8,7 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { Prisma } from 'src/generated/prisma/client';
-
-const PRISMA_ERROR_MAP: Record<string, { status: number; message: string }> = {
-  P2002: { status: HttpStatus.CONFLICT, message: '이미 존재하는 데이터입니다.' },
-  P2025: { status: HttpStatus.NOT_FOUND, message: '요청한 데이터를 찾을 수 없습니다.' },
-  P2003: { status: HttpStatus.BAD_REQUEST, message: '잘못된 참조입니다.' },
-};
+import { mapPrismaError } from './prisma-error.mapper';
 
 // 어디서도 처리되지 않은 예외가 내부 정보(스택 트레이스, DB 에러 메시지 등)를
 // 그대로 클라이언트에 노출하지 않도록 막는 마지막 안전망.
@@ -22,28 +17,35 @@ export class AllExceptionsFilter implements ExceptionFilter {
   private readonly logger = new Logger('ExceptionFilter');
 
   catch(exception: unknown, host: ArgumentsHost) {
-    const ctx = host.switchToHttp();
-    const response = ctx.getResponse<Response>();
+    const response = host.switchToHttp().getResponse<Response>();
 
     if (exception instanceof HttpException) {
-      response.status(exception.getStatus()).json(exception.getResponse());
+      const status = exception.getStatus();
+      const body = exception.getResponse();
+      // ThrottlerException 등 문자열 응답도 { statusCode, message } 형태로 통일
+      response
+        .status(status)
+        .json(
+          typeof body === 'string'
+            ? { statusCode: status, message: body }
+            : body,
+        );
       return;
     }
 
     if (exception instanceof Prisma.PrismaClientKnownRequestError) {
-      const mapped = PRISMA_ERROR_MAP[exception.code];
+      const mapped = mapPrismaError(exception);
       if (mapped) {
-        response.status(mapped.status).json({
-          statusCode: mapped.status,
-          message: mapped.message,
-        });
+        if (mapped.status >= 500) this.logger.error(exception.stack);
+        response
+          .status(mapped.status)
+          .json({ statusCode: mapped.status, message: mapped.message });
         return;
       }
     }
 
-    this.logger.error(
-      exception instanceof Error ? exception.stack : exception,
-    );
+    // 모르는 Prisma 코드, PrismaClientValidationError, 그 밖의 모든 예외
+    this.logger.error(exception instanceof Error ? exception.stack : exception);
     response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
       message: 'Internal server error',
